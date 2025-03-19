@@ -1,0 +1,101 @@
+/* ... tu CSS actual de Pantalla_Vendedor ... */
+
+/* Botón para agregar producto */
+.btn-nuevo {
+  background-color: #2E8B57;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 20px 0;
+}
+.btn-nuevo:hover {
+  background-color: #236b45;
+}
+
+/* Tabla de productos */
+.tabla-productos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+.tabla-productos th,
+.tabla-productos td {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+.tabla-productos thead {
+  background: #eee;
+}
+
+/* MODAL overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Contenido del modal */
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.form-producto {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-producto label {
+  font-weight: bold;
+}
+
+.form-producto input[type="text"],
+.form-producto input[type="number"],
+.form-producto textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Botones del modal */
+.btns-modal {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-guardar {
+  background-color: #2E8B57;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-cerrar {
+  background-color: #999;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
