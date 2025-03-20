@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import GlobalStyles from "../Estilos/GlobalStyles";
 import "./Pantalla_Comprador.css";
 import logo from "../assets/GreenShare.png";
@@ -13,6 +14,8 @@ import {
   FaBriefcase,
   FaUsers,
   FaInfoCircle,
+  FaBook,
+  FaLifeRing,
 } from "react-icons/fa";
 
 // Firestore
@@ -25,9 +28,7 @@ import {
 } from "firebase/firestore";
 
 /**
- * Si el string base64 no existe o está vacío, retorna una imagen por defecto (ajusta la ruta).
- * Si incluye "data:image", lo usamos tal cual.
- * Si no, le agregamos "data:image/png;base64,".
+ * Si el string base64 no existe o está vacío, retorna una imagen por defecto.
  */
 function getImageSrc(base64String) {
   if (!base64String) {
@@ -40,11 +41,13 @@ function getImageSrc(base64String) {
 }
 
 const Pantalla_Comprador = () => {
+  const navigate = useNavigate();
+
   // Estados de búsqueda/filtros
   const [searchTerm, setSearchTerm] = useState("");
   const [tipoResiduo, setTipoResiduo] = useState("");
   const [ubicacion, setUbicacion] = useState("");
-  const [rangoPrecio, setRangoPrecio] = useState(1000); // <-- Aumentado a 1000
+  const [rangoPrecio, setRangoPrecio] = useState(1000);
   const [cantidad, setCantidad] = useState("");
 
   // Estado para los residuos cargados
@@ -53,13 +56,17 @@ const Pantalla_Comprador = () => {
   // Menú lateral
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Modal de detalle
+  // Modal de detalle de residuo
   const [selectedResiduo, setSelectedResiduo] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  /* -----------------------------------------------------------------
-   *  CARGA LOS DOCUMENTOS DE LA COLECCIÓN "residuos" DESDE FIRESTORE
-   * ----------------------------------------------------------------- */
+  // Modal genérico para botones (top bar y menú lateral)
+  const [menuModalOpen, setMenuModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
+
+  // -----------------------------------------------------------------
+  //  CARGA DE RESIDUOS DESDE FIRESTORE
+  // -----------------------------------------------------------------
   useEffect(() => {
     const fetchResiduos = async () => {
       try {
@@ -76,9 +83,9 @@ const Pantalla_Comprador = () => {
     fetchResiduos();
   }, []);
 
-  /* -----------------------------------------------------------------
-   *  FILTRADO LOCAL (FRONTEND) DE LOS RESIDUOS
-   * ----------------------------------------------------------------- */
+  // -----------------------------------------------------------------
+  //  FILTRADO DE RESIDUOS
+  // -----------------------------------------------------------------
   const filteredResiduos = residuos.filter((item) => {
     const tipoLower = (item.tipo || "").toLowerCase();
     const descLower = (item.descripcion || "").toLowerCase();
@@ -101,30 +108,24 @@ const Pantalla_Comprador = () => {
     const matchUbicacion =
       ubicacion === "" || ubiLower === ubicacion.toLowerCase();
 
-    // Asegúrate de que el precio sea <= rangoPrecio (ahora 1000)
     const matchPrecio = precio <= rangoMax;
-
     const matchCantidad = cantidad === "" || cant >= cantMin;
 
     return (
-      matchSearch &&
-      matchTipo &&
-      matchUbicacion &&
-      matchPrecio &&
-      matchCantidad
+      matchSearch && matchTipo && matchUbicacion && matchPrecio && matchCantidad
     );
   });
 
-  /* -----------------------------------------------------------------
-   *  MENÚ LATERAL: ABRIR / CERRAR
-   * ----------------------------------------------------------------- */
+  // -----------------------------------------------------------------
+  //  MENÚ LATERAL
+  // -----------------------------------------------------------------
   const handleToggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  /* -----------------------------------------------------------------
-   *  MODAL DE DETALLE: ABRIR / CERRAR
-   * ----------------------------------------------------------------- */
+  // -----------------------------------------------------------------
+  //  MODAL DE DETALLE DE RESIDUO
+  // -----------------------------------------------------------------
   const openModal = (residuo) => {
     setSelectedResiduo(residuo);
     setIsModalOpen(true);
@@ -135,9 +136,9 @@ const Pantalla_Comprador = () => {
     setIsModalOpen(false);
   };
 
-  /* -----------------------------------------------------------------
-   *  FUNCIÓN DE "COMPRAR": CREA DOCUMENTO EN "compras"
-   * ----------------------------------------------------------------- */
+  // -----------------------------------------------------------------
+  //  FUNCIÓN DE "COMPRAR"
+  // -----------------------------------------------------------------
   const handleComprar = async (residuo) => {
     const compradorId = "comprador_001"; // Ajusta según tu auth real
 
@@ -160,6 +161,20 @@ const Pantalla_Comprador = () => {
       console.error("Error al registrar la compra:", error);
       alert("Ocurrió un error al registrar la compra.");
     }
+  };
+
+  // -----------------------------------------------------------------
+  //  MODAL GENÉRICO PARA BOTONES DEL MENÚ Y TOP BAR
+  // -----------------------------------------------------------------
+  const openMenuModal = (type) => {
+    setModalType(type);
+    setMenuModalOpen(true);
+    if (isMenuOpen) handleToggleMenu();
+  };
+
+  const closeMenuModal = () => {
+    setModalType(null);
+    setMenuModalOpen(false);
   };
 
   return (
@@ -213,17 +228,23 @@ const Pantalla_Comprador = () => {
           </div>
 
           <div className="userOptions">
-            <div className="option">
+            <div
+              className="option"
+              onClick={() => openMenuModal("cuentaListas")}
+            >
               <span>Hola, Inicia sesión</span>
               <strong>
                 Cuenta y Listas <FaCaretDown />
               </strong>
             </div>
-            <div className="option">
+            <div
+              className="option"
+              onClick={() => openMenuModal("devoluciones")}
+            >
               <span>Devoluciones</span>
               <strong>y Pedidos</strong>
             </div>
-            <div className="cart">
+            <div className="cart" onClick={() => openMenuModal("carrito")}>
               <FaShoppingCart size={20} />
               <strong>Carrito</strong>
             </div>
@@ -251,7 +272,7 @@ const Pantalla_Comprador = () => {
               <input
                 type="range"
                 min="0"
-                max="1000" 
+                max="1000"
                 step="10"
                 value={rangoPrecio}
                 onChange={(e) => setRangoPrecio(e.target.value)}
@@ -271,6 +292,7 @@ const Pantalla_Comprador = () => {
 
           {/* Catálogo de residuos */}
           <div className="catalogSection">
+            {/* Ejemplo de publicidad */}
             <div className="residuoCard">
               <img
                 src="https://kalischacero.com/wp-content/uploads/2018/05/Alambre-Recocido-2-300x300.jpg"
@@ -280,10 +302,10 @@ const Pantalla_Comprador = () => {
               <div className="residuoInfo">
                 <h4 className="residuoTitle">Oferta Especial</h4>
                 <p className="residuoDescription">
-                  ¡Aprovecha esta increíble oferta por tiempo limitado!, solo por hoy venderemos alambre con un 20% de descuento
+                  ¡Aprovecha esta oferta por tiempo limitado! Solo por hoy, alambre
+                  con un 20% de descuento.
                 </p>
                 <p className="residuoLocation">Guadalajara, México</p>
-                {/* Texto "Publicidad Pagada" */}
                 <div className="publicidadTag">
                   <span>Publicidad Pagada</span>
                 </div>
@@ -318,14 +340,13 @@ const Pantalla_Comprador = () => {
                   </div>
                 );
               })
-            ) 
-            
-            : (
+            ) : (
               <div className="noResults">
                 No hay resultados para tu búsqueda.
               </div>
             )}
-             {/* Tarjeta 1 */}
+
+            {/* Tarjeta 1 */}
             <div className="residuoCard">
               <img
                 src="https://contenedoresdereciclaje.com/wp-content/uploads/2024/07/Reciclaje-de-Carton.webp"
@@ -344,7 +365,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 2 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1618477388954-7852f32655ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://d100mj7v0l85u5.cloudfront.net/s3fs-public/styles/webp/public/botellas-de-plastico-GR.jpg.webp?itok=1fm9scSI"
                 alt="Residuo 2"
                 className="residuoImage"
               />
@@ -360,7 +381,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 3 */}
             <div className="residuoCard">
               <img
-                src="https://d100mj7v0l85u5.cloudfront.net/s3fs-public/styles/webp/public/botellas-de-plastico-GR.jpg.webp?itok=1fm9scSI"
+                src="https://cdn.cloudbf.com/thumb/format/mini_xsize/upfile/128/images/48/20180803174504327.jpg.webp"
                 alt="Residuo 3"
                 className="residuoImage"
               />
@@ -376,7 +397,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 4 */}
             <div className="residuoCard">
               <img
-                src="https://www.istockphoto.com/es/fotos/chatarra"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLipkGA67nrhQh99hBCTSLlMoF89PquJUSiQ&s"
                 alt="Residuo 4"
                 className="residuoImage"
               />
@@ -392,7 +413,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 5 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1618477388954-7852f32655ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMZVJcudM9HLJGfitTgYpPl7xUysOFgo9uFg&s"
                 alt="Residuo 5"
                 className="residuoImage"
               />
@@ -408,7 +429,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 6 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1617806118233-18e1de247200?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnnJrys1cxaR-gUQrcE2ziiEq3bzd85ibhHQ&s"
                 alt="Residuo 6"
                 className="residuoImage"
               />
@@ -424,7 +445,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 7 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1618237264250-87d123e8d91a?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://i.etsystatic.com/21980481/r/il/40d1b1/5414700301/il_570xN.5414700301_63qo.jpg"
                 alt="Residuo 7"
                 className="residuoImage"
               />
@@ -440,7 +461,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 8 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1625014618427-fbc980b974f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://www.wastetrade.com/wp-content/uploads/2023/02/Mixed-Plastic.jpg"
                 alt="Residuo 8"
                 className="residuoImage"
               />
@@ -456,7 +477,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 9 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1618477388954-7852f32655ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://thefoodtech.com/wp-content/uploads/2020/12/presenta-tetra-pak-plataforma-digital-envasando-ideas.jpg"
                 alt="Residuo 9"
                 className="residuoImage"
               />
@@ -472,7 +493,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 10 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1617806118233-18e1de247200?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXRbfkbNOumnKkMim71s8zTJOqg1P4Pm5BTw&s"
                 alt="Residuo 10"
                 className="residuoImage"
               />
@@ -488,7 +509,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 11 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1618237264250-87d123e8d91a?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-dKUWqUb697XNb4AGBUJ8O64KOXLTpjv48w&s"
                 alt="Residuo 11"
                 className="residuoImage"
               />
@@ -504,7 +525,7 @@ const Pantalla_Comprador = () => {
             {/* Tarjeta 12 */}
             <div className="residuoCard">
               <img
-                src="https://images.unsplash.com/photo-1625014618427-fbc980b974f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                src="https://aseca.com/wp-content/uploads/desechar-las-pilas.jpeg"
                 alt="Residuo 12"
                 className="residuoImage"
               />
@@ -516,6 +537,7 @@ const Pantalla_Comprador = () => {
                 <button className="residuoButton">Ver Detalle</button>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -527,32 +549,52 @@ const Pantalla_Comprador = () => {
               Cerrar
             </button>
           </div>
-          <div className="menuItem">
+          <div className="menuItem" onClick={() => openMenuModal("historial")}>
             <FaHistory size={20} />
             <span>Historial</span>
           </div>
-          <div className="menuItem">
+          <div className="menuItem" onClick={() => openMenuModal("chat")}>
             <FaComments size={20} />
             <span>Chat Cliente</span>
           </div>
-          <div className="menuItem">
+          <div className="menuItem" onClick={() => openMenuModal("empleos")}>
             <FaBriefcase size={20} />
             <span>Empleos</span>
           </div>
-          <div className="menuItem">
+          <div className="menuItem" onClick={() => openMenuModal("comunidad")}>
             <FaUsers size={20} />
             <span>Comunidad</span>
           </div>
-          <div className="menuItem">
+          <div className="menuItem" onClick={() => openMenuModal("info")}>
             <FaInfoCircle size={20} />
             <span>Información</span>
           </div>
+          <div
+            className="menuItem"
+            onClick={() => {
+              handleToggleMenu();
+              navigate("/capacitacion");
+            }}
+          >
+            <FaBook size={20} />
+            <span>Capacitación</span>
+          </div>
+          <div
+            className="menuItem"
+            onClick={() => {
+              handleToggleMenu();
+              navigate("/soporte");
+            }}
+          >
+            <FaLifeRing size={20} />
+            <span>Soporte</span>
+          </div>
         </div>
 
-        {/* Modal de Detalle */}
+        {/* MODAL DE DETALLE DE RESIDUO */}
         {isModalOpen && selectedResiduo && (
           <div className="modalOverlay" onClick={closeModal}>
-            <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+            <div className="modalContent detailModal" onClick={(e) => e.stopPropagation()}>
               <span className="closeButton" onClick={closeModal}>
                 &times;
               </span>
@@ -568,12 +610,12 @@ const Pantalla_Comprador = () => {
                   <strong>Precio:</strong> ${selectedResiduo.precio_publicar}
                 </p>
                 <p>
-                  <strong>Ubicación:</strong> {selectedResiduo.ubicacion || "Ubicación desconocida"}
+                  <strong>Ubicación:</strong>{" "}
+                  {selectedResiduo.ubicacion || "Ubicación desconocida"}
                 </p>
                 <p>
                   <strong>Cantidad:</strong> {selectedResiduo.cantidad}
                 </p>
-
                 <div className="modalButtons">
                   <button
                     className="actionButton"
@@ -588,6 +630,224 @@ const Pantalla_Comprador = () => {
                     Contactar
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL GENÉRICO PARA BOTONES DEL MENÚ Y TOP BAR */}
+        {menuModalOpen && (
+          <div className="modalOverlay" onClick={closeMenuModal}>
+            <div className="modalContent genericModal" onClick={(e) => e.stopPropagation()}>
+              <span className="closeButton" onClick={closeMenuModal}>
+                &times;
+              </span>
+              {modalType === "historial" && (
+                <div className="modalHeader">
+                  <img
+                    src="https://source.unsplash.com/featured/?history"
+                    alt="Historial"
+                    className="modalHeaderImage"
+                  />
+                  <h2>Historial de Compras</h2>
+                </div>
+              )}
+              {modalType === "chat" && (
+                <div className="modalHeader">
+                  <img
+                    src="https://source.unsplash.com/featured/?chat"
+                    alt="Chat"
+                    className="modalHeaderImage"
+                  />
+                  <h2>Chat Cliente</h2>
+                </div>
+              )}
+              {modalType === "empleos" && (
+                <div className="modalHeader">
+                  <img
+                    src="https://source.unsplash.com/featured/?jobs"
+                    alt="Empleos"
+                    className="modalHeaderImage"
+                  />
+                  <h2>Empleos Disponibles</h2>
+                </div>
+              )}
+              {modalType === "comunidad" && (
+                <div className="modalHeader">
+                  <img
+                    src="https://source.unsplash.com/featured/?community"
+                    alt="Comunidad"
+                    className="modalHeaderImage"
+                  />
+                  <h2>Comunidad GreenShare</h2>
+                </div>
+              )}
+              {modalType === "info" && (
+                <div className="modalHeader">
+                  <img
+                    src="https://source.unsplash.com/featured/?company"
+                    alt="Información"
+                    className="modalHeaderImage"
+                  />
+                  <h2>Información General</h2>
+                </div>
+              )}
+              {modalType === "cuentaListas" && (
+                <div className="modalHeader">
+                  <img
+                    src="https://source.unsplash.com/featured/?profile"
+                    alt="Cuenta"
+                    className="modalHeaderImage"
+                  />
+                  <h2>Cuenta y Listas</h2>
+                </div>
+              )}
+              {modalType === "devoluciones" && (
+                <div className="modalHeader">
+                  <img
+                    src="https://source.unsplash.com/featured/?returns"
+                    alt="Devoluciones"
+                    className="modalHeaderImage"
+                  />
+                  <h2>Devoluciones y Pedidos</h2>
+                </div>
+              )}
+              {modalType === "carrito" && (
+                <div className="modalHeader">
+                  <img
+                    src="https://source.unsplash.com/featured/?shoppingcart"
+                    alt="Carrito"
+                    className="modalHeaderImage"
+                  />
+                  <h2>Carrito de Compras</h2>
+                </div>
+              )}
+
+              <div className="modalBody">
+                {modalType === "historial" && (
+                  <>
+                    <p>
+                      Aquí se mostraría un historial detallado de tus compras.
+                      Revisa fechas, productos y precios en un diseño claro y
+                      ordenado.
+                    </p>
+                    <ul>
+                      <li>Compra #001: Plástico PET - $100</li>
+                      <li>Compra #002: Cartón - $50</li>
+                      <li>Compra #003: Aluminio - $75</li>
+                    </ul>
+                  </>
+                )}
+                {modalType === "chat" && (
+                  <>
+                    <p>
+                      Bienvenido al chat en vivo. Interactúa con nuestro equipo de
+                      soporte o con vendedores para resolver tus dudas en tiempo
+                      real.
+                    </p>
+                    <p>
+                      <strong>Ejemplo:</strong> “Hola, ¿tienen disponibilidad de
+                      cartón reciclado?”
+                    </p>
+                  </>
+                )}
+                {modalType === "empleos" && (
+                  <>
+                    <p>
+                      GreenShare busca talento para crecer. Estas son algunas
+                      ofertas actuales:
+                    </p>
+                    <ul>
+                      <li>Analista de Logística</li>
+                      <li>Especialista en Ventas B2B</li>
+                      <li>Diseñador UX/UI</li>
+                      <li>Repartidor con licencia comercial</li>
+                    </ul>
+                    <p>
+                      Envía tu CV a <strong>empleos@greenshare.com</strong>
+                    </p>
+                  </>
+                )}
+                {modalType === "comunidad" && (
+                  <>
+                    <p>
+                      Únete a nuestra comunidad para compartir consejos de
+                      reciclaje, organizar eventos y conocer a otros usuarios
+                      comprometidos con el medio ambiente.
+                    </p>
+                    <ul>
+                      <li>Foro de discusión</li>
+                      <li>Grupo en redes sociales</li>
+                      <li>Eventos locales</li>
+                    </ul>
+                  </>
+                )}
+                {modalType === "info" && (
+                  <>
+                    <p>
+                      GreenShare es la plataforma líder para la compra y venta de
+                      residuos reciclables. Conoce nuestra misión y visión para
+                      construir un mundo más sostenible.
+                    </p>
+                    <p>
+                      <strong>Misión:</strong> Facilitar el intercambio de
+                      residuos valorizables.
+                    </p>
+                    <p>
+                      <strong>Visión:</strong> Ser la red de colaboración
+                      principal para el manejo responsable de residuos.
+                    </p>
+                  </>
+                )}
+                {modalType === "cuentaListas" && (
+                  <>
+                    <p>
+                      Gestiona tu cuenta, actualiza tus datos personales y crea
+                      listas de productos que te interesen. Organiza tu
+                      información de forma sencilla.
+                    </p>
+                    <ul>
+                      <li>Actualizar perfil</li>
+                      <li>Configurar métodos de pago</li>
+                      <li>Listas de deseos</li>
+                    </ul>
+                  </>
+                )}
+                {modalType === "devoluciones" && (
+                  <>
+                    <p>
+                      Si tienes inconvenientes con algún producto, revisa el estado
+                      de tus pedidos y solicita devoluciones de manera rápida y
+                      sencilla.
+                    </p>
+                    <ul>
+                      <li>#1203 - PET Transparente - Entregado</li>
+                      <li>#1204 - Cartón Mixto - En camino</li>
+                      <li>#1205 - Chatarra Metálica - Pendiente</li>
+                    </ul>
+                  </>
+                )}
+                {modalType === "carrito" && (
+                  <>
+                    <p>
+                      Revisa los productos que has agregado a tu carrito y el
+                      total estimado para tu compra. Confirma tu pedido cuando
+                      estés listo.
+                    </p>
+                    <ul>
+                      <li>Botellas de Plástico (5 kg) - $100</li>
+                      <li>Cartón Reciclado (10 kg) - $500</li>
+                    </ul>
+                    <p>
+                      <em>Total estimado:</em> $600
+                    </p>
+                  </>
+                )}
+              </div>
+              <div className="modalFooter">
+                <button className="modalCloseButton" onClick={closeMenuModal}>
+                  Cerrar
+                </button>
               </div>
             </div>
           </div>
