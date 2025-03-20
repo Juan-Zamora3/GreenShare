@@ -25,13 +25,13 @@ import {
 } from "firebase/firestore";
 
 /**
- * Verifica si la cadena base64 ya contiene "data:image"
- * Si no lo contiene, se le agrega el prefijo "data:image/png;base64,"
+ * Si el string base64 no existe o está vacío, retorna una imagen por defecto (ajusta la ruta).
+ * Si incluye "data:image", lo usamos tal cual.
+ * Si no, le agregamos "data:image/png;base64,".
  */
 function getImageSrc(base64String) {
   if (!base64String) {
-    // Retorna una imagen por defecto si no existe nada en Firestore
-    return "/ruta/a/imagen-por-defecto.png";
+    return "/ruta/a/imagen-por-defecto.png"; // Ajusta la ruta a tu imagen por defecto
   }
   if (base64String.includes("data:image")) {
     return base64String;
@@ -44,7 +44,7 @@ const Pantalla_Comprador = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [tipoResiduo, setTipoResiduo] = useState("");
   const [ubicacion, setUbicacion] = useState("");
-  const [rangoPrecio, setRangoPrecio] = useState(50);
+  const [rangoPrecio, setRangoPrecio] = useState(1000); // <-- Aumentado a 1000
   const [cantidad, setCantidad] = useState("");
 
   // Estado para los residuos cargados
@@ -80,9 +80,9 @@ const Pantalla_Comprador = () => {
    *  FILTRADO LOCAL (FRONTEND) DE LOS RESIDUOS
    * ----------------------------------------------------------------- */
   const filteredResiduos = residuos.filter((item) => {
-    const tipoLower = item.tipo?.toLowerCase() || "";
-    const descLower = item.descripcion?.toLowerCase() || "";
-    const ubiLower = item.ubicacion?.toLowerCase() || "";
+    const tipoLower = (item.tipo || "").toLowerCase();
+    const descLower = (item.descripcion || "").toLowerCase();
+    const ubiLower = (item.ubicacion || "").toLowerCase();
     const searchLower = searchTerm.toLowerCase();
 
     const precio = parseFloat(item.precio_publicar) || 0;
@@ -101,7 +101,9 @@ const Pantalla_Comprador = () => {
     const matchUbicacion =
       ubicacion === "" || ubiLower === ubicacion.toLowerCase();
 
+    // Asegúrate de que el precio sea <= rangoPrecio (ahora 1000)
     const matchPrecio = precio <= rangoMax;
+
     const matchCantidad = cantidad === "" || cant >= cantMin;
 
     return (
@@ -137,8 +139,7 @@ const Pantalla_Comprador = () => {
    *  FUNCIÓN DE "COMPRAR": CREA DOCUMENTO EN "compras"
    * ----------------------------------------------------------------- */
   const handleComprar = async (residuo) => {
-    // Reemplaza con el ID real del comprador según tu lógica de autenticación
-    const compradorId = "comprador_001";
+    const compradorId = "comprador_001"; // Ajusta según tu auth real
 
     try {
       await addDoc(collection(db, "compras"), {
@@ -231,6 +232,7 @@ const Pantalla_Comprador = () => {
 
         {/* Contenido principal */}
         <div className="mainContent">
+          {/* Barra de filtros */}
           <div className="filtersBar">
             <div className="filterItem">
               <label>Ubicación</label>
@@ -242,7 +244,6 @@ const Pantalla_Comprador = () => {
                 <option value="Guadalajara">Guadalajara</option>
                 <option value="Zapopan">Zapopan</option>
                 <option value="Tlaquepaque">Tlaquepaque</option>
-                {/* Agrega más ubicaciones según tu DB */}
               </select>
             </div>
             <div className="filterItem">
@@ -250,7 +251,7 @@ const Pantalla_Comprador = () => {
               <input
                 type="range"
                 min="0"
-                max="1000"
+                max="1000" 
                 step="10"
                 value={rangoPrecio}
                 onChange={(e) => setRangoPrecio(e.target.value)}
@@ -275,18 +276,13 @@ const Pantalla_Comprador = () => {
                 const imageSrc = getImageSrc(residuo.imagen_base64);
                 return (
                   <div className="residuoCard" key={residuo.id}>
-                    {/* Imagen arriba */}
-                    <div className="residuoImageContainer">
-                      <img
-                        src={imageSrc}
-                        alt={residuo.tipo}
-                        className="residuoImage"
-                      />
-                    </div>
-                    {/* Info abajo */}
+                    <img
+                      src={imageSrc}
+                      alt={residuo.tipo}
+                      className="residuoImage"
+                    />
                     <div className="residuoInfo">
                       <h4 className="residuoTitle">{residuo.tipo}</h4>
-                      <p className="residuoDesc">{residuo.descripcion}</p>
                       <p className="residuoPrice">
                         ${residuo.precio_publicar || 0}
                       </p>
@@ -360,11 +356,12 @@ const Pantalla_Comprador = () => {
                   <strong>Precio:</strong> ${selectedResiduo.precio_publicar}
                 </p>
                 <p>
-                  <strong>Ubicación:</strong> {selectedResiduo.ubicacion}
+                  <strong>Ubicación:</strong> {selectedResiduo.ubicacion || "Ubicación desconocida"}
                 </p>
                 <p>
                   <strong>Cantidad:</strong> {selectedResiduo.cantidad}
                 </p>
+
                 <div className="modalButtons">
                   <button
                     className="actionButton"
