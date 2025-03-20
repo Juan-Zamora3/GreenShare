@@ -29,7 +29,7 @@ const PantallaVendedor = () => {
   // Estados para la pantalla de Publicar Residuo
   const [tipo, setTipo] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [cantidad, setCantidad] = useState("");
+  const [cantidad, setCantidad] = useState(""); 
   const [unidad, setUnidad] = useState("kg");
   const [precioTentativo, setPrecioTentativo] = useState("");
   const [rfc, setRfc] = useState("");
@@ -62,7 +62,7 @@ const PantallaVendedor = () => {
     { id: 3, sender: "Tú", message: "Perfecto, muchas gracias por la actualización." },
     { id: 4, sender: "Cliente", message: "De nada, cualquier duda me avisas." },
   ];
-  const [activeChat, setActiveChat] = useState(initialFakeChats);
+ 
 
   // Datos para la gráfica de estadísticas (ejemplo con residuos y ventas)
   const data = [
@@ -197,6 +197,80 @@ const PantallaVendedor = () => {
       alert("Error al eliminar residuo.");
     }
   };
+
+  const [contacts, setContacts] = useState([
+    {
+      id: 1,
+      name: "Ivsu",
+      messages: [
+        { id: 1, sender: "Tú", message: "Hola, ¿cómo estás?" },
+        { id: 2, sender: "Ivsu", message: "¡Hola! Estoy bien, ¿y tú?" },
+      ],
+    },
+    {
+      id: 2,
+      name: "Ivsu2",
+      messages: [
+        { id: 1, sender: "Tú", message: "¿Ya revisaste mi último pedido?" },
+        { id: 2, sender: "Ivsu2", message: "Sí, lo revisé y está en camino." },
+      ],
+    },
+    {
+      id: 3,
+      name: "Lau",
+      messages: [
+        { id: 1, sender: "Tú", message: "Buenas, tiene información sobre mi pedido?" },
+        { id: 2, sender: "Lau", message: "Sí, ¿cuál es tu número de pedido?" },
+      ],
+    },
+    {
+      id: 4,
+      name: "Cliente",
+      messages: [
+        { id: 1, sender: "Tú", message: "Mi pedido aún no llega." },
+        { id: 2, sender: "Cliente", message: "¿Cuál es tu número de pedido?" },
+      ],
+    },
+  ]);
+  const [activeChat, setActiveChat] = useState({ messages: [] });
+
+  const handleSelectContact = (contact) => {
+    setActiveChat(contact);
+  };
+  
+  const [newMessage, setNewMessage] = useState("");
+  const handleSendMessage = async () => {
+    if (newMessage.trim() === "") return;
+  
+    // Crea el mensaje con el timestamp como un objeto JSON válido
+    const newChatMessage = {
+      sender: "Tú",
+      message: newMessage,
+      timestamp: new Date().toISOString(), // Utiliza una cadena de texto para el timestamp
+    };
+  
+    try {
+      const contactRef = doc(db, "chats", activeChat.id);
+  
+      // Asegúrate de que `activeChat.messages` sea un array antes de hacer el spread
+      const updatedMessages = Array.isArray(activeChat.messages) ? [...activeChat.messages, newChatMessage] : [newChatMessage];
+  
+      await updateDoc(contactRef, {
+        messages: updatedMessages,
+      });
+  
+      setActiveChat((prevChat) => ({
+        ...prevChat,
+        messages: updatedMessages,
+      }));
+  
+      setNewMessage(""); // Limpiar el campo de texto
+    } catch (error) {
+      console.error("Error al enviar mensaje:", error);
+    }
+  };
+  
+  
 
   return (
     <div className="vendor-dashboard">
@@ -435,37 +509,45 @@ const PantallaVendedor = () => {
 
         {/* PANEL CHATS */}
         {activePanel === "chats" && (
-          <div className="chat-layout panel">
-            <h2>Chats</h2>
-            <div className="chat-container">
-              <div className="contact-list">
-                <h2>Contactos</h2>
-                <ul>
-                  {[
-                    { id: 1, name: "Ivsu" },
-                    { id: 2, name: "Ivsu2" },
-                    { id: 3, name: "Lau" },
-                    { id: 4, name: "Cliente" },
-                  ].map(contact => (
-                    <li key={contact.id}>{contact.name}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="chat-window">
-                {activeChat.map((msg, index) => (
-                  <div key={index} className={`message ${msg.sender === "Tú" ? "me" : "other"}`}>
-                    <div className="bubble">
-                      <strong>{msg.sender}: </strong>{msg.message}
-                    </div>
-                    <span className="timestamp">10:0{index} AM</span>
-                  </div>
-                ))}
-                <div className="chat-input">
-                  <input type="text" placeholder="Escribe un mensaje..." />
-                  <button className="action-button">Enviar</button>
-                </div>
-              </div>
-            </div>
+  <div className="chat-layout panel">
+    <h2>Chats</h2>
+    <div className="chat-container">
+      <div className="contact-list">
+        <h2>Contactos</h2>
+        <ul>
+          {contacts.map((contact) => (
+            <li key={contact.id} onClick={() => handleSelectContact(contact)}>
+              {contact.name}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="chat-window">
+      {activeChat?.messages?.length > 0 ? (
+  activeChat.messages.map((msg, index) => (
+    <div key={index} className={`message ${msg.sender === "Tú" ? "me" : "other"}`}>
+      <div className="bubble">
+        <strong>{msg.sender}: </strong>{msg.message}
+      </div>
+      <span className="timestamp">{new Date(msg.timestamp).toLocaleTimeString()}</span>
+    </div>
+  ))
+) : (
+  <p>No hay mensajes en este chat.</p>
+)}
+  <div className="chat-input">
+    <input 
+      type="text" 
+      placeholder="Escribe un mensaje..." 
+      value={newMessage}
+      onChange={(e) => setNewMessage(e.target.value)}
+      onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+    />
+    <button className="action-button" onClick={handleSendMessage}>Enviar</button>
+  </div>
+</div>
+    </div>
+  
           </div>
         )}
       </main>

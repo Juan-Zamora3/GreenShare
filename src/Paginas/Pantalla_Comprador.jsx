@@ -597,27 +597,38 @@ const Pantalla_Comprador = () => {
         {isModalOpen && selectedResiduo && (
           <div className="modalOverlay" onClick={closeModal}>
             <div className="modalContent detailModal" onClick={(e) => e.stopPropagation()}>
-              <span className="closeButton" onClick={closeModal}>
-                &times;
-              </span>
-              <img
-                src={getImageSrc(selectedResiduo.imagen_base64)}
-                alt={selectedResiduo.tipo}
-                className="modalImage"
-              />
+              {/* Sección de la imagen */}
+              <div className="seccion1">
+                <img
+                  src={getImageSrc(selectedResiduo.imagen_base64)}
+                  alt={selectedResiduo.tipo}
+                  className="modalImage"
+                />
+              </div>
+
+              {/* Sección de la información */}
               <div className="modalInfo">
+                {/* Botón de cerrar */}
+                <span className="closeButton" onClick={closeModal}>
+                  &times;
+                </span>
+
+                {/* Título y descripción */}
                 <h2>{selectedResiduo.tipo}</h2>
                 <p>{selectedResiduo.descripcion}</p>
+
+                {/* Precio, ubicación y cantidad */}
                 <p>
                   <strong>Precio:</strong> ${selectedResiduo.precio_publicar}
                 </p>
                 <p>
-                  <strong>Ubicación:</strong>{" "}
-                  {selectedResiduo.ubicacion || "Ubicación desconocida"}
+                  <strong>Ubicación:</strong> {selectedResiduo.ubicacion || "Ubicación desconocida"}
                 </p>
                 <p>
                   <strong>Cantidad:</strong> {selectedResiduo.cantidad}
                 </p>
+
+                {/* Botones de acción */}
                 <div className="modalButtons">
                   <button
                     className="actionButton"
@@ -636,7 +647,6 @@ const Pantalla_Comprador = () => {
             </div>
           </div>
         )}
-
         {/* MODAL GENÉRICO PARA BOTONES DEL MENÚ Y TOP BAR */}
         {menuModalOpen && (
           <div className="modalOverlay" onClick={closeMenuModal}>
@@ -644,54 +654,243 @@ const Pantalla_Comprador = () => {
               <span className="closeButton" onClick={closeMenuModal}>
                 &times;
               </span>
-              {modalType === "historial" && (
-                <div className="modalHeader">
-                  <img
-                    src="https://source.unsplash.com/featured/?history"
-                    alt="Historial"
-                    className="modalHeaderImage"
-                  />
-                  <h2>Historial de Compras</h2>
+              {menuModalOpen && modalType === "historial" && (
+                <div className="modalOverlay" onClick={closeMenuModal}>
+                  <div className="modalContent historialModal" onClick={(e) => e.stopPropagation()}>
+                    {/* Botón de cerrar */}
+                    <span className="closeButton" onClick={closeMenuModal}>
+                      &times;
+                    </span>
+
+                    {/* Encabezado del modal */}
+                    <div className="modalHeader">
+                      <h2>Historial</h2>
+                    </div>
+
+                    {/* Lista de compras */}
+                    <ul className="historialList">
+                      {/* Ejemplo de compra 1 */}
+                      <li className="historialItem">
+                        <p><strong>Nombre del producto</strong></p>
+                        <p>Precio: 64 kg</p>
+                        <p>Fecha de compra</p>
+                      </li>
+
+                      {/* Ejemplo de compra 2 */}
+                      <li className="historialItem">
+                        <p><strong>Nombre del producto</strong></p>
+                        <p>Precio: 64 kg</p>
+                        <p>Fecha de compra</p>
+                      </li>
+
+                      {/* Ejemplo de compra 3 */}
+                      <li className="historialItem">
+                        <p><strong>Nombre del producto</strong></p>
+                        <p>Precio: 64 kg</p>
+                        <p>Fecha de compra</p>
+                      </li>
+
+                      {/* Ejemplo de compra 4 */}
+                      <li className="historialItem">
+                        <p><strong>Nombre del producto</strong></p>
+                        <p>Precio: 64 kg</p>
+                        <p>Fecha de compra</p>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               )}
-              {modalType === "chat" && (
-                <div className="modalHeader">
-                  <img
-                    src="https://source.unsplash.com/featured/?chat"
-                    alt="Chat"
-                    className="modalHeaderImage"
-                  />
-                  <h2>Chat Cliente</h2>
+             {menuModalOpen && modalType === "chat" && (
+              <div className="modalOverlay" onClick={closeMenuModal}>
+                <div className="modalContent chatModal" onClick={(e) => e.stopPropagation()}>
+                  {/* Botón de cerrar */}
+                  <span className="closeButton" onClick={closeMenuModal}>
+                    &times;
+                  </span>
+
+                  {/* Encabezado del modal */}
+                  <div className="modalHeader">
+                    <h2>Chat Cliente</h2>
+                  </div>
+
+                  {/* Layout del chat */}
+                  <div className="chat-layout1 panel">
+                    <div className="contact-list">
+                      <h2>Contactos</h2>
+                      <ul>
+                        {[
+                          { id: 1, name: "Ivsu" },
+                          { id: 2, name: "Ivsu2" },
+                          { id: 3, name: "Lau" },
+                          { id: 4, name: "Cliente" },
+                        ].map((contact) => (
+                          <li key={contact.id}>{contact.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="chat-window">
+                      {[
+                        { sender: "Tú", message: "Hola, ¿tienen disponibilidad de cartón reciclado?" },
+                        { sender: "Ivsu", message: "Sí, tenemos 100 kg disponibles." },
+                        { sender: "Tú", message: "Perfecto, ¿cuál es el precio?" },
+                        { sender: "Ivsu", message: "$50 por kg." },
+                      ].map((msg, index) => (
+                        <div key={index} className={`message ${msg.sender === "Tú" ? "me" : "other"}`}>
+                          <div className="bubble">
+                            <strong>{msg.sender}: </strong>{msg.message}
+                          </div>
+                          <span className="timestamp">10:0{index} AM</span>
+                        </div>
+                      ))}
+                      <div className="chat-input">
+                        <input type="text" placeholder="Escribe un mensaje..." />
+                        <button className="action-button">Enviar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {menuModalOpen && modalType === "empleos" && (
+              <div className="modalOverlay" onClick={closeMenuModal}>
+                <div className="modalContent empleosModal" onClick={(e) => e.stopPropagation()}>
+                  {/* Botón de cerrar */}
+                  <span className="closeButton" onClick={closeMenuModal}>
+                    &times;
+                  </span>
+
+                  {/* Encabezado del modal */}
+                  <div className="modalHeader">
+                    <h2>Empleos Disponibles</h2>
+                  </div>
+
+                  {/* Lista de empleos */}
+                  <ul className="empleosList">
+                    {/* Ejemplo de empleo 1 */}
+                    <li className="empleoItem">
+                      <h3>Analista de Logística</h3>
+                      <p className="ubicacion">Guadalajara, México</p>
+                      <p className="tipoContrato">Tiempo completo</p>
+                      <button onClick={() => alert("Aplicar a Analista de Logística")}>Aplicar</button>
+                    </li>
+
+                    {/* Ejemplo de empleo 2 */}
+                    <li className="empleoItem">
+                      <h3>Especialista en Ventas B2B</h3>
+                      <p className="ubicacion">Monterrey, México</p>
+                      <p className="tipoContrato">Medio tiempo</p>
+                      <button onClick={() => alert("Aplicar a Especialista en Ventas B2B")}>Aplicar</button>
+                    </li>
+
+                    {/* Ejemplo de empleo 3 */}
+                    <li className="empleoItem">
+                      <h3>Diseñador UX/UI</h3>
+                      <p className="ubicacion">Remoto</p>
+                      <p className="tipoContrato">Freelance</p>
+                      <button onClick={() => alert("Aplicar a Diseñador UX/UI")}>Aplicar</button>
+                    </li>
+
+                    {/* Ejemplo de empleo 4 */}
+                    <li className="empleoItem">
+                      <h3>Repartidor con Licencia Comercial</h3>
+                      <p className="ubicacion">Ciudad de México</p>
+                      <p className="tipoContrato">Tiempo completo</p>
+                      <button onClick={() => alert("Aplicar a Repartidor")}>Aplicar</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+              {menuModalOpen && modalType === "comunidad" && (
+                <div className="modalOverlay" onClick={closeMenuModal}>
+                  <div className="modalContent comunidadModal" onClick={(e) => e.stopPropagation()}>
+                    {/* Botón de cerrar */}
+                    <span className="closeButton" onClick={closeMenuModal}>
+                      &times;
+                    </span>
+
+                    {/* Encabezado del modal */}
+                    <div className="modalHeader">
+                      <h2>Comunidad GreenShare</h2>
+                    </div>
+
+                    {/* Lista de actividades comunitarias */}
+                    <ul className="comunidadList">
+                      {/* Ejemplo de actividad 1 */}
+                      <li className="comunidadItem">
+                        <h3>Taller de Reciclaje</h3>
+                        <p>Aprende técnicas avanzadas de reciclaje y cómo contribuir al medio ambiente.</p>
+                        <p className="fecha">Fecha: 2023-11-15</p>
+                        <button onClick={() => alert("Unirse a Taller de Reciclaje")}>Unirse</button>
+                      </li>
+
+                      {/* Ejemplo de actividad 2 */}
+                      <li className="comunidadItem">
+                        <h3>Foro de Discusión</h3>
+                        <p>Únete a nuestra comunidad en línea para discutir temas de sostenibilidad.</p>
+                        <p className="fecha">Fecha: 2023-11-20</p>
+                        <button onClick={() => alert("Unirse a Foro de Discusión")}>Unirse</button>
+                      </li>
+
+                      {/* Ejemplo de actividad 3 */}
+                      <li className="comunidadItem">
+                        <h3>Evento de Limpieza</h3>
+                        <p>Participa en nuestra jornada de limpieza en el parque central.</p>
+                        <p className="fecha">Fecha: 2023-11-25</p>
+                        <button onClick={() => alert("Unirse a Evento de Limpieza")}>Unirse</button>
+                      </li>
+
+                      {/* Ejemplo de actividad 4 */}
+                      <li className="comunidadItem">
+                        <h3>Grupo de Redes Sociales</h3>
+                        <p>Conéctate con otros miembros de la comunidad en nuestras redes sociales.</p>
+                        <p className="fecha">Fecha: Siempre activo</p>
+                        <button onClick={() => alert("Unirse a Grupo de Redes Sociales")}>Unirse</button>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               )}
-              {modalType === "empleos" && (
-                <div className="modalHeader">
-                  <img
-                    src="https://source.unsplash.com/featured/?jobs"
-                    alt="Empleos"
-                    className="modalHeaderImage"
-                  />
-                  <h2>Empleos Disponibles</h2>
-                </div>
-              )}
-              {modalType === "comunidad" && (
-                <div className="modalHeader">
-                  <img
-                    src="https://source.unsplash.com/featured/?community"
-                    alt="Comunidad"
-                    className="modalHeaderImage"
-                  />
-                  <h2>Comunidad GreenShare</h2>
-                </div>
-              )}
-              {modalType === "info" && (
-                <div className="modalHeader">
-                  <img
-                    src="https://source.unsplash.com/featured/?company"
-                    alt="Información"
-                    className="modalHeaderImage"
-                  />
-                  <h2>Información General</h2>
+              {menuModalOpen && modalType === "info" && (
+                <div className="modalOverlay" onClick={closeMenuModal}>
+                  <div className="modalContent infoModal" onClick={(e) => e.stopPropagation()}>
+                    {/* Botón de cerrar */}
+                    <span className="closeButton" onClick={closeMenuModal}>
+                      &times;
+                    </span>
+
+                    {/* Encabezado del modal */}
+                    <div className="modalHeader">
+                      <h2>Información General</h2>
+                    </div>
+
+                    {/* Contenido de información */}
+                    <div className="infoContent">
+                      <h3>Misión</h3>
+                      <p>
+                        Facilitar el intercambio de residuos valorizables para promover un
+                        mundo más sostenible.
+                      </p>
+
+                      <h3>Visión</h3>
+                      <p>
+                        Ser la red de colaboración principal para el manejo responsable de
+                        residuos, conectando a personas y empresas comprometidas con el medio
+                        ambiente.
+                      </p>
+
+                      <h3>Valores</h3>
+                      <ul>
+                        <li>Sostenibilidad</li>
+                        <li>Innovación</li>
+                        <li>Colaboración</li>
+                        <li>Transparencia</li>
+                        <li>Responsabilidad</li>
+                      </ul>
+
+                      <button onClick={closeMenuModal}>Cerrar</button>
+                    </div>
+                  </div>
                 </div>
               )}
               {modalType === "cuentaListas" && (
@@ -704,24 +903,127 @@ const Pantalla_Comprador = () => {
                   <h2>Cuenta y Listas</h2>
                 </div>
               )}
-              {modalType === "devoluciones" && (
-                <div className="modalHeader">
-                  <img
-                    src="https://source.unsplash.com/featured/?returns"
-                    alt="Devoluciones"
-                    className="modalHeaderImage"
-                  />
-                  <h2>Devoluciones y Pedidos</h2>
+              {menuModalOpen && modalType === "devoluciones" && (
+                <div className="modalOverlay" onClick={closeMenuModal}>
+                  <div className="modalContent devolucionesModal" onClick={(e) => e.stopPropagation()}>
+                    {/* Botón de cerrar */}
+                    <span className="closeButton" onClick={closeMenuModal}>
+                      &times;
+                    </span>
+
+                    {/* Encabezado del modal */}
+                    <div className="modalHeader">
+                      <h2>Devoluciones y Pedidos</h2>
+                    </div>
+
+                    {/* Contenido de devoluciones y pedidos */}
+                    <div className="devolucionesContent">
+                      {/* Lista de pedidos */}
+                      <ul className="pedidosList">
+                        {/* Ejemplo de pedido 1 */}
+                        <li className="pedidoItem">
+                          <h3>Pedido #1203</h3>
+                          <p className="estado">Estado: Entregado</p>
+                          <p className="fecha">Fecha: 2023-10-01</p>
+                          <div className="acciones">
+                            <button onClick={() => alert("Solicitar Devolución")}>Solicitar Devolución</button>
+                            <button className="secundario" onClick={() => alert("Ver Detalles")}>Ver Detalles</button>
+                          </div>
+                        </li>
+
+                        {/* Ejemplo de pedido 2 */}
+                        <li className="pedidoItem">
+                          <h3>Pedido #1204</h3>
+                          <p className="estado">Estado: En camino</p>
+                          <p className="fecha">Fecha: 2023-09-25</p>
+                          <div className="acciones">
+                            <button onClick={() => alert("Solicitar Devolución")}>Solicitar Devolución</button>
+                            <button className="secundario" onClick={() => alert("Ver Detalles")}>Ver Detalles</button>
+                          </div>
+                        </li>
+
+                        {/* Ejemplo de pedido 3 */}
+                        <li className="pedidoItem">
+                          <h3>Pedido #1205</h3>
+                          <p className="estado">Estado: Pendiente</p>
+                          <p className="fecha">Fecha: 2023-09-20</p>
+                          <div className="acciones">
+                            <button onClick={() => alert("Solicitar Devolución")}>Solicitar Devolución</button>
+                            <button className="secundario" onClick={() => alert("Ver Detalles")}>Ver Detalles</button>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               )}
-              {modalType === "carrito" && (
-                <div className="modalHeader">
-                  <img
-                    src="https://source.unsplash.com/featured/?shoppingcart"
-                    alt="Carrito"
-                    className="modalHeaderImage"
-                  />
-                  <h2>Carrito de Compras</h2>
+              {menuModalOpen && modalType === "carrito" && (
+                <div className="modalOverlay" onClick={closeMenuModal}>
+                  <div className="modalContent carritoModal" onClick={(e) => e.stopPropagation()}>
+                    {/* Botón de cerrar */}
+                    <span className="closeButton" onClick={closeMenuModal}>
+                      &times;
+                    </span>
+
+                    {/* Encabezado del modal */}
+                    <div className="modalHeader">
+                      <h2>Carrito de Compras</h2>
+                    </div>
+
+                    {/* Contenido del carrito */}
+                    <div className="carritoContent">
+                      {/* Lista de productos en el carrito */}
+                      <ul className="carritoList">
+                        {/* Ejemplo de producto 1 */}
+                        <li className="carritoItem">
+                          <img
+                            src="https://contenedoresdereciclaje.com/wp-content/uploads/2024/07/Reciclaje-de-Carton.webp"
+                            alt="Cartón Reciclado"
+                          />
+                          <div className="itemInfo">
+                            <h3>Cartón Reciclado</h3>
+                            <p>Cantidad: 10 kg</p>
+                            <p className="itemPrice">$50/kg</p>
+                          </div>
+                          <div className="itemActions">
+                            <button onClick={() => alert("Eliminar del carrito")}>Eliminar</button>
+                            <button onClick={() => alert("Editar cantidad")}>Editar</button>
+                          </div>
+                        </li>
+
+                        {/* Ejemplo de producto 2 */}
+                        <li className="carritoItem">
+                          <img
+                            src="https://d100mj7v0l85u5.cloudfront.net/s3fs-public/styles/webp/public/botellas-de-plastico-GR.jpg.webp?itok=1fm9scSI"
+                            alt="Botellas de Plástico"
+                          />
+                          <div className="itemInfo">
+                            <h3>Botellas de Plástico</h3>
+                            <p>Cantidad: 5 kg</p>
+                            <p className="itemPrice">$20/kg</p>
+                          </div>
+                          <div className="itemActions">
+                            <button onClick={() => alert("Eliminar del carrito")}>Eliminar</button>
+                            <button onClick={() => alert("Editar cantidad")}>Editar</button>
+                          </div>
+                        </li>
+                      </ul>
+
+                      {/* Resumen del pedido */}
+                      <div className="resumenPedido">
+                        <h3>Resumen del Pedido</h3>
+                        <p>Subtotal: $600</p>
+                        <p>Envío: $50</p>
+                        <p className="total">Total: $650</p>
+                        <div className="acciones">
+                          <button className="secundario" onClick={closeMenuModal}>
+                            Seguir Comprando
+                          </button>
+                          <button onClick={() => alert("Proceder al Pago")}>Proceder al Pago</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
