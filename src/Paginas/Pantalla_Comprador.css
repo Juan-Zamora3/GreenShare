@@ -283,6 +283,24 @@
   cursor: pointer;
 }
 
+.seccargarmas{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  margin: 30px;
+}
+.btnCargarmas{
+  padding: 10px 20px;
+  background-color: #38a3a5;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  
+}
+
 .modalImage {
   width: 100%;
   height: auto;

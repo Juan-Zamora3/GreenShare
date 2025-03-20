@@ -537,7 +537,9 @@ const Pantalla_Comprador = () => {
                 <button className="residuoButton">Ver Detalle</button>
               </div>
             </div>
-
+          </div>
+          <div className="seccargarmas">
+            <button className="btnCargarmas">Cargar más</button>
           </div>
         </div>
 
