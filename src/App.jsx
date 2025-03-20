@@ -6,6 +6,7 @@ import Pantalla_Comprador from "./Paginas/Pantalla_Comprador";
 import Pantalla_Vendedor from "./Paginas/Pantalla_Vendedor";
 import Pantalla_Repartidor from "./Paginas/Pantalla_Repartidor";
 
+
 function App() {
   return (
     <BrowserRouter>
