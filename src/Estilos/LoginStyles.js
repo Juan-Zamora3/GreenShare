@@ -38,17 +38,31 @@ export const LeftSide = styled.div`
 
 export const RightSide = styled.div`
   flex: 1;
-  background-color: #2e86c1; /* Ejemplo de color lapis-lazuli */
+  background-color:rgb(255, 255, 255); /* Ejemplo de color lapis-lazuli */
   color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 40px;
+  overflow: hidden; /* Para evitar que la imagen se desborde */
 
   @media (max-width: 768px) {
     order: 1;
     padding: 20px;
+
+    img {
+      width: 100%; /* La imagen ocupará todo el ancho del contenedor */
+      height: auto; /* Mantiene la relación de aspecto */
+      object-fit: cover; /* Asegura que la imagen cubra todo el espacio manteniendo su relación de aspecto */
+    }
+  }
+
+  img {
+    width: 100%; /* La imagen ocupará todo el ancho del contenedor */
+    height: 100%; /* La imagen ocupará todo el alto del contenedor */
+    object-fit: cover; /* Asegura que la imagen cubra todo el espacio manteniendo su relación de aspecto */
+    border-radius: 8px; /* Opcional: si quieres bordes redondeados */
   }
 `;
 

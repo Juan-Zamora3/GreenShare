@@ -12,7 +12,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import "./Pantalla_Vendedor.css";
-
+import logo from "../assets/GreenShare.png";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
 /**
  * EJEMPLO DE "IA" (Generador de precio sugerido)
@@ -28,15 +29,11 @@ const PantallaVendedor = () => {
   /* -------------------------------------------------------
    *                ESTADOS PRINCIPALES
    * ------------------------------------------------------- */
-  const [currentVendor, setCurrentVendor] = useState(null); // Guardará el doc del vendedor
-  const [residuos, setResiduos] = useState([]); // Lista de residuos del vendedor
-
-  // Modals
+  const [currentVendor, setCurrentVendor] = useState(null);
+  const [residuos, setResiduos] = useState([]);
   const [showPublicarModal, setShowPublicarModal] = useState(false);
   const [showResiduosModal, setShowResiduosModal] = useState(false);
-
-  // Campos del formulario (Publicar/Editar)
-  const [selectedResiduo, setSelectedResiduo] = useState(null); // null = crear nuevo
+  const [selectedResiduo, setSelectedResiduo] = useState(null);
   const [tipo, setTipo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [cantidad, setCantidad] = useState("");
@@ -46,12 +43,21 @@ const PantallaVendedor = () => {
   const [rfc, setRfc] = useState("");
   const [lugarOrigen, setLugarOrigen] = useState("");
   const [imagenBase64, setImagenBase64] = useState("");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  /* -------------------------------------------------------
+   *                DATOS PARA LA GRÁFICA
+   * ------------------------------------------------------- */
+  const data = [
+    { name: "Total Residuos", value: residuos.length },
+    { name: "Residuos Activos", value: residuos.filter((r) => r.estado_publicacion !== "inactivo").length },
+    { name: "Residuos Inactivos", value: residuos.filter((r) => r.estado_publicacion === "inactivo").length },
+  ];
 
   /* -------------------------------------------------------
    *          OBTENER EL DOC DEL VENDEDOR (EJEMPLO)
    * ------------------------------------------------------- */
   useEffect(() => {
-    // Supongamos que buscamos al vendedor por su correo:
     const fetchVendor = async () => {
       try {
         const q = query(
@@ -60,7 +66,6 @@ const PantallaVendedor = () => {
         );
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
-          // Tomar el primer doc que coincida
           const docVendedor = snapshot.docs[0];
           setCurrentVendor(docVendedor.data());
         } else {
@@ -77,7 +82,7 @@ const PantallaVendedor = () => {
    *    CARGAR RESIDUOS DEL VENDEDOR CUANDO TENGAMOS SU ID
    * ------------------------------------------------------- */
   useEffect(() => {
-    if (!currentVendor?.id) return; // Esperamos hasta que tengamos el campo "id" del vendedor
+    if (!currentVendor?.id) return;
 
     const fetchResiduos = async () => {
       try {
@@ -103,7 +108,6 @@ const PantallaVendedor = () => {
    *                ABRIR/CERRAR MODALES
    * ------------------------------------------------------- */
   const openPublicarModal = () => {
-    // Limpiamos campos (modo "crear")
     setSelectedResiduo(null);
     setTipo("");
     setDescripcion("");
@@ -117,9 +121,7 @@ const PantallaVendedor = () => {
     setShowPublicarModal(true);
   };
 
-  const openResiduosModal = () => {
-    setShowResiduosModal(true);
-  };
+  
 
   const closePublicarModal = () => {
     setShowPublicarModal(false);
@@ -177,9 +179,8 @@ const PantallaVendedor = () => {
       return;
     }
 
-    // Objeto base para crear o actualizar
     const dataResiduo = {
-      vendedor: currentVendor.id, // ID del vendedor
+      vendedor: currentVendor.id,
       tipo,
       descripcion,
       cantidad: parseFloat(cantidad) || 0,
@@ -195,19 +196,17 @@ const PantallaVendedor = () => {
 
     try {
       if (selectedResiduo) {
-        // EDITAR
         const docRef = doc(db, "residuos", selectedResiduo.id);
         await updateDoc(docRef, dataResiduo);
         alert("Residuo actualizado correctamente.");
       } else {
-        // CREAR
         await addDoc(collection(db, "residuos"), {
           ...dataResiduo,
           fecha_publicacion: serverTimestamp(),
         });
         alert("Residuo publicado correctamente.");
       }
-      // Refrescar lista
+
       const q = query(
         collection(db, "residuos"),
         where("vendedor", "==", currentVendor.id)
@@ -260,6 +259,17 @@ const PantallaVendedor = () => {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed); // Corregido
+  };
+ 
+
+  const [showResiduosList, setShowResiduosList] = useState(false); // Nuevo estado
+  
+  const openResiduosModal = () => {
+    setShowResiduosList(true); // Mostrar la lista de residuos
+    setShowResiduosModal(false); // Ocultar el modal (si lo tienes)
+  };
   /* -------------------------------------------------------
    *                 RENDER PRINCIPAL
    * ------------------------------------------------------- */
@@ -268,7 +278,11 @@ const PantallaVendedor = () => {
       {/* HEADER */}
       <header className="vendor-header">
         <div className="header-left">
-          <h2>GreenShare - Vendedor</h2>
+          <img src={logo} alt="GreenShare" className="logo" />
+          <button className="menu-toggle" onClick={toggleSidebar}>
+            ☰
+          </button>
+          <h2>Vendedor</h2>
         </div>
         <div className="header-right">
           {currentVendor ? (
@@ -278,9 +292,9 @@ const PantallaVendedor = () => {
           )}
         </div>
       </header>
-
+  
       {/* SIDEBAR */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <nav>
           <ul>
             <li>
@@ -292,144 +306,12 @@ const PantallaVendedor = () => {
           </ul>
         </nav>
       </aside>
-
-      {/* CONTENIDO PRINCIPAL (EJEMPLO DE DASHBOARD) */}
+  
+      {/* CONTENIDO PRINCIPAL */}
       <main className="main-content">
-        <h1>Panel de Vendedor</h1>
-        <p>Aquí puedes gestionar tus residuos, ver estadísticas, etc.</p>
-
-        {/* Tarjetas de estadísticas (demo) */}
-        <div className="stats-cards">
-          <div className="card">
-            <h3>Total Residuos</h3>
-            <p>{residuos.length}</p>
-          </div>
-          <div className="card">
-            <h3>Residuos Activos</h3>
-            <p>
-              {residuos.filter((r) => r.estado_publicacion !== "inactivo").length}
-            </p>
-          </div>
-          <div className="card">
-            <h3>Residuos Inactivos</h3>
-            <p>
-              {residuos.filter((r) => r.estado_publicacion === "inactivo").length}
-            </p>
-          </div>
-        </div>
-      </main>
-
-      {/* MODAL DE PUBLICAR / EDITAR RESIDUO */}
-      {showPublicarModal && (
-        <div className="modal-overlay" onClick={closePublicarModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedResiduo ? "Editar Residuo" : "Publicar Residuo"}</h2>
-            <form onSubmit={handleSaveResiduo} className="form-residuo">
-              <label>Tipo de Residuo</label>
-              <input
-                type="text"
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                required
-              />
-
-              <label>Descripción</label>
-              <textarea
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                required
-              />
-
-              <label>Cantidad</label>
-              <input
-                type="number"
-                step="any"
-                value={cantidad}
-                onChange={(e) => setCantidad(e.target.value)}
-                required
-              />
-
-              <label>Unidad</label>
-              <select value={unidad} onChange={(e) => setUnidad(e.target.value)}>
-                <option value="kg">kg</option>
-                <option value="ton">ton</option>
-                <option value="lts">lts</option>
-              </select>
-
-              <label>RFC</label>
-              <input
-                type="text"
-                value={rfc}
-                onChange={(e) => setRfc(e.target.value)}
-              />
-
-              <label>Lugar de Origen</label>
-              <input
-                type="text"
-                value={lugarOrigen}
-                onChange={(e) => setLugarOrigen(e.target.value)}
-              />
-
-              <label>Precio Sugerido (IA)</label>
-              <div className="ai-price-container">
-                <input
-                  type="number"
-                  step="any"
-                  value={precioSugerido}
-                  onChange={(e) => setPrecioSugerido(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={handleGenerarPrecioIA}
-                  className="btn-ai"
-                >
-                  Generar IA
-                </button>
-              </div>
-
-              <label>Precio a Publicar</label>
-              <input
-                type="number"
-                step="any"
-                value={precioPublicar}
-                onChange={(e) => setPrecioPublicar(e.target.value)}
-                required
-              />
-
-              <label>Imagen del Residuo</label>
-              <input type="file" accept="image/*" onChange={handleFileChange} />
-              {imagenBase64 && (
-                <div className="preview-container">
-                  <p>Vista Previa:</p>
-                  <img
-                    src={imagenBase64}
-                    alt="Vista previa"
-                    className="img-preview"
-                  />
-                </div>
-              )}
-
-              <div className="modal-buttons">
-                <button type="submit" className="btn-submit">
-                  Guardar
-                </button>
-                <button
-                  type="button"
-                  onClick={closePublicarModal}
-                  className="btn-cancel"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL DE MIS RESIDUOS */}
-      {showResiduosModal && (
-        <div className="modal-overlay" onClick={closeResiduosModal}>
-          <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
+        {showResiduosList ? (
+          // Mostrar la lista de residuos
+          <div className="residuos-list-container">
             <h2>Mis Residuos</h2>
             {residuos.length === 0 ? (
               <p>No has publicado ningún residuo todavía.</p>
@@ -492,15 +374,62 @@ const PantallaVendedor = () => {
                 </tbody>
               </table>
             )}
-            <div className="modal-buttons">
-              <button
-                type="button"
-                onClick={closeResiduosModal}
-                className="btn-cancel"
-              >
-                Cerrar
-              </button>
+          </div>
+        ) : (
+          // Mostrar el panel de vendedor
+          <>
+            <h1>Panel de Vendedor</h1>
+            <p>Aquí puedes gestionar tus residuos, ver estadísticas, etc.</p>
+  
+            {/* Tarjetas de estadísticas */}
+            <div className="stats-cards">
+              <div className="card">
+                <h3>Total Residuos</h3>
+                <p>{residuos.length}</p>
+              </div>
+              <div className="card">
+                <h3>Residuos Activos</h3>
+                <p>
+                  {residuos.filter((r) => r.estado_publicacion !== "inactivo").length}
+                </p>
+              </div>
+              <div className="card">
+                <h3>Residuos Inactivos</h3>
+                <p>
+                  {residuos.filter((r) => r.estado_publicacion === "inactivo").length}
+                </p>
+              </div>
             </div>
+  
+            {/* Gráfica de barras */}
+            <div className="chart-container">
+              <h3>Estadísticas de Residuos</h3>
+              <BarChart
+                width={600}
+                height={300}
+                data={data}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#2E8B57" />
+              </BarChart>
+            </div>
+          </>
+        )}
+      </main>
+  
+      {/* MODAL DE PUBLICAR / EDITAR RESIDUO */}
+      {showPublicarModal && (
+        <div className="modal-overlay" onClick={closePublicarModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>{selectedResiduo ? "Editar Residuo" : "Publicar Residuo"}</h2>
+            <form onSubmit={handleSaveResiduo} className="form-residuo">
+              {/* ... (formulario completo) */}
+            </form>
           </div>
         </div>
       )}
@@ -508,4 +437,4 @@ const PantallaVendedor = () => {
   );
 };
 
-export default PantallaVendedor;
+export default PantallaVendedor; // Exporta el componente

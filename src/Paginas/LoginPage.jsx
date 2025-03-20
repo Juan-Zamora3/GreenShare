@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { db } from "../firebaseConfig";
+import img from "../assets/imglogin.png";
 
 // Importar estilos de Login
 import {
@@ -209,10 +210,9 @@ const LoginPage = () => {
       <Card>
         {/* Lado derecho: branding/imagen */}
         <RightSide>
-          <Title>GreenShare</Title>
-          <Subtitle>
-            Soluciones sostenibles <br /> para compra y transporte de residuos
-          </Subtitle>
+
+           <img src={img} alt="imagenlogin" />
+
         </RightSide>
         {/* Lado izquierdo: formulario */}
         <LeftSide>
