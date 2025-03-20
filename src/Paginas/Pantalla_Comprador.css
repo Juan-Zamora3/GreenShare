@@ -219,6 +219,17 @@
   color: #666; /* color de ejemplo */
 }
 
+.publicidadTag {
+  background-color: #38a3a5; /* Color de fondo del tag */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
 .residuoButton {
   background-color: var(--lapis-lazuli);
   color: #fff;

@@ -49,7 +49,7 @@ export const RightSide = styled.div`
 
   @media (max-width: 768px) {
     order: 1;
-    padding: 20px;
+    padding: 120px;
 
     img {
       width: 100%; /* La imagen ocupará todo el ancho del contenedor */

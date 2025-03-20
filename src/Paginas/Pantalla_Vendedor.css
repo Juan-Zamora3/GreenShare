@@ -143,10 +143,6 @@ body {
   align-items: center;
 }
 
-.logo{
-min-width: 10vh;
-
-}
 .sidebar nav button {
   width: 100%;
   background: transparent;

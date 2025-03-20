@@ -210,9 +210,7 @@ const LoginPage = () => {
       <Card>
         {/* Lado derecho: branding/imagen */}
         <RightSide>
-
            <img src={img} alt="imagenlogin" />
-
         </RightSide>
         {/* Lado izquierdo: formulario */}
         <LeftSide>

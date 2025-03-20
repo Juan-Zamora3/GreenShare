@@ -271,6 +271,25 @@ const Pantalla_Comprador = () => {
 
           {/* Catálogo de residuos */}
           <div className="catalogSection">
+            <div className="residuoCard">
+              <img
+                src="https://kalischacero.com/wp-content/uploads/2018/05/Alambre-Recocido-2-300x300.jpg"
+                alt="Publicidad Pagada"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Oferta Especial</h4>
+                <p className="residuoDescription">
+                  ¡Aprovecha esta increíble oferta por tiempo limitado!, solo por hoy venderemos alambre con un 20% de descuento
+                </p>
+                <p className="residuoLocation">Guadalajara, México</p>
+                {/* Texto "Publicidad Pagada" */}
+                <div className="publicidadTag">
+                  <span>Publicidad Pagada</span>
+                </div>
+              </div>
+            </div>
+
             {filteredResiduos.length > 0 ? (
               filteredResiduos.map((residuo) => {
                 const imageSrc = getImageSrc(residuo.imagen_base64);
@@ -299,11 +318,204 @@ const Pantalla_Comprador = () => {
                   </div>
                 );
               })
-            ) : (
+            ) 
+            
+            : (
               <div className="noResults">
                 No hay resultados para tu búsqueda.
               </div>
             )}
+             {/* Tarjeta 1 */}
+            <div className="residuoCard">
+              <img
+                src="https://contenedoresdereciclaje.com/wp-content/uploads/2024/07/Reciclaje-de-Carton.webp"
+                alt="Residuo 1"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Cartón Reciclado</h4>
+                <p className="residuoDescription">Cartón limpio y listo para reciclar.</p>
+                <p className="residuoLocation">Ciudad de México</p>
+                <p className="residuoPrice">$50/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 2 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1618477388954-7852f32655ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 2"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Botellas de Plástico</h4>
+                <p className="residuoDescription">Botellas PET limpias y compactadas.</p>
+                <p className="residuoLocation">Guadalajara</p>
+                <p className="residuoPrice">$20/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 3 */}
+            <div className="residuoCard">
+              <img
+                src="https://d100mj7v0l85u5.cloudfront.net/s3fs-public/styles/webp/public/botellas-de-plastico-GR.jpg.webp?itok=1fm9scSI"
+                alt="Residuo 3"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Vidrio Transparente</h4>
+                <p className="residuoDescription">Vidrio listo para fundición.</p>
+                <p className="residuoLocation">Monterrey</p>
+                <p className="residuoPrice">$30/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 4 */}
+            <div className="residuoCard">
+              <img
+                src="https://www.istockphoto.com/es/fotos/chatarra"
+                alt="Residuo 4"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Chatarra Metálica</h4>
+                <p className="residuoDescription">Metales varios para reciclaje.</p>
+                <p className="residuoLocation">Puebla</p>
+                <p className="residuoPrice">$15/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 5 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1618477388954-7852f32655ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 5"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Papel de Oficina</h4>
+                <p className="residuoDescription">Papel blanco para reciclaje.</p>
+                <p className="residuoLocation">Querétaro</p>
+                <p className="residuoPrice">$10/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 6 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1617806118233-18e1de247200?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 6"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Aluminio Usado</h4>
+                <p className="residuoDescription">Latas de aluminio compactadas.</p>
+                <p className="residuoLocation">Tijuana</p>
+                <p className="residuoPrice">$25/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 7 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1618237264250-87d123e8d91a?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 7"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Madera Recuperada</h4>
+                <p className="residuoDescription">Madera en buen estado para reutilización.</p>
+                <p className="residuoLocation">Cancún</p>
+                <p className="residuoPrice">$40/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 8 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1625014618427-fbc980b974f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 8"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Plástico Mixto</h4>
+                <p className="residuoDescription">Plásticos varios para reciclaje.</p>
+                <p className="residuoLocation">Mérida</p>
+                <p className="residuoPrice">$18/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 9 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1618477388954-7852f32655ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 9"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Tetra Pak</h4>
+                <p className="residuoDescription">Envases de Tetra Pak limpios.</p>
+                <p className="residuoLocation">León</p>
+                <p className="residuoPrice">$12/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 10 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1617806118233-18e1de247200?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 10"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Cobre Recuperado</h4>
+                <p className="residuoDescription">Cables de cobre para reciclaje.</p>
+                <p className="residuoLocation">Veracruz</p>
+                <p className="residuoPrice">$100/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 11 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1618237264250-87d123e8d91a?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 11"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Textiles Usados</h4>
+                <p className="residuoDescription">Ropa y telas para reciclaje.</p>
+                <p className="residuoLocation">Toluca</p>
+                <p className="residuoPrice">$5/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
+
+            {/* Tarjeta 12 */}
+            <div className="residuoCard">
+              <img
+                src="https://images.unsplash.com/photo-1625014618427-fbc980b974f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                alt="Residuo 12"
+                className="residuoImage"
+              />
+              <div className="residuoInfo">
+                <h4 className="residuoTitle">Pilas Usadas</h4>
+                <p className="residuoDescription">Pilas alcalinas y recargables.</p>
+                <p className="residuoLocation">Morelia</p>
+                <p className="residuoPrice">$8/kg</p>
+                <button className="residuoButton">Ver Detalle</button>
+              </div>
+            </div>
           </div>
         </div>
 
